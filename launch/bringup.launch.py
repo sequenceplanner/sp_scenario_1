@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import (
@@ -200,6 +201,16 @@ def generate_launch_description():
         emulate_tty=True,
     )
 
+    ghost_robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        namespace="",
+        output="screen",
+        parameters=[robot_description],
+        remappings=[("joint_states", "ghost_joint_states"), ("/robot_description", "/ghost_robot_description")],
+        emulate_tty=True,
+    )
+
     simple_robot_simulator_node = Node(
         package="simple_robot_simulator",
         executable="simple_robot_simulator",
@@ -253,6 +264,7 @@ def generate_launch_description():
     nodes_to_start = [
         robot_state_publisher_node,
         simple_robot_simulator_node,
+        ghost_robot_state_publisher_node,
         rviz_node,
         tf_lookup_node,
         tf_broadcast_node,
