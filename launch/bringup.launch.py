@@ -83,6 +83,15 @@ def generate_launch_description():
         have to be updated.",
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "ghost_prefix",
+            default_value="ghost_",  # robot_parameters["prefix"],
+            description="Prefix of the joint names, useful for \
+        multi-robot setup. If changed than also joint names in the controllers' configuration \
+        have to be updated.",
+        )
+    )
 
     ur_type = LaunchConfiguration("ur_type")
     safety_limits = LaunchConfiguration("safety_limits")
@@ -91,6 +100,7 @@ def generate_launch_description():
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")
     prefix = LaunchConfiguration("prefix")
+    ghost_prefix = LaunchConfiguration("ghost_prefix")
 
     joint_limit_params = PathJoinSubstitution(
         [
@@ -179,7 +189,55 @@ def generate_launch_description():
             prefix,
         ]
     )
+
+    ghost_robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [FindPackageShare(description_package), "urdf", description_file]
+            ),
+            " ",
+            "joint_limit_params:=",
+            joint_limit_params,
+            " ",
+            "kinematics_params:=",
+            kinematics_params,
+            " ",
+            "physical_params:=",
+            physical_params,
+            " ",
+            "visual_params:=",
+            visual_params,
+            " ",
+            "safety_limits:=",
+            safety_limits,
+            " ",
+            "safety_pos_margin:=",
+            safety_pos_margin,
+            " ",
+            "safety_k_position:=",
+            safety_k_position,
+            " ",
+            "name:=",
+            ur_type,
+            " ",
+            "script_filename:=",
+            script_filename,
+            " ",
+            "input_recipe_filename:=",
+            input_recipe_filename,
+            " ",
+            "output_recipe_filename:=",
+            output_recipe_filename,
+            " ",
+            "prefix:=",
+            ghost_prefix,
+        ]
+    )
+
     robot_description = {"robot_description": robot_description_content}
+    ghost_robot_description = {"robot_description": ghost_robot_description_content}
 
     rviz_config_file = os.path.join(scenario_dir, "config", "bringup.rviz")
 
@@ -188,7 +246,9 @@ def generate_launch_description():
         "use_urdf_from_path": False,
         "urdf_path": "/home/endre/Desktop/meca.urdf", 
         "urdf_raw": robot_description_content,
-        "initial_joint_state": ["0.0", "-1.5707", "1.5707", "-1.5707", "-1.5707", "0.0"]
+        "initial_joint_state": ["0.0", "-1.5707", "1.5707", "-1.5707", "-1.5707", "0.0"],
+        "initial_face_plate_id": "tool0",
+        "initial_tcp_id": "svt_tcp"
     }
 
     robot_state_publisher_node = Node(
@@ -204,10 +264,10 @@ def generate_launch_description():
     ghost_robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        namespace="",
+        namespace="ghost",
         output="screen",
-        parameters=[robot_description],
-        remappings=[("joint_states", "ghost_joint_states"), ("/robot_description", "/ghost_robot_description")],
+        parameters=[ghost_robot_description],
+        # remappings=[("joint_states", "ghost/joint_states"), ("robot_description", "ghost/robot_description")],
         emulate_tty=True,
     )
 
@@ -261,6 +321,15 @@ def generate_launch_description():
         emulate_tty=True,
     )
 
+    pose_saver_marker_node = Node(
+        package="pose_saver_marker",
+        executable="pose_saver_marker",
+        namespace="",
+        output="screen",
+        parameters=[],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+    )
+
     nodes_to_start = [
         robot_state_publisher_node,
         simple_robot_simulator_node,
@@ -268,7 +337,8 @@ def generate_launch_description():
         rviz_node,
         tf_lookup_node,
         tf_broadcast_node,
-        tf_sms_node
+        tf_sms_node,
+        pose_saver_marker_node
     ]
 
     return LaunchDescription(declared_arguments + nodes_to_start)
