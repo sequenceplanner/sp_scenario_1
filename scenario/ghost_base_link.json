@@ -1,8 +1,8 @@
 {
     "show": true,
     "active": false,
-    "child_frame": "ghost_base_link",
-    "parent_frame": "base_link",
+    "child_frame_id": "ghost_base_link",
+    "parent_frame_id": "vention_stand",
     "transform": {
         "translation": {
             "x": 0.0,

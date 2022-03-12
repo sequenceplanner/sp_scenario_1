@@ -1,13 +1,13 @@
 {
     "show": true,
     "active": false,
-    "child_frame": "svt",
-    "parent_frame": "rsp",
+    "child_frame_id": "plate_with_camera",
+    "parent_frame_id": "tool0",
     "transform": {
         "translation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.0
+            "z": 0.05
         },
         "rotation": {
             "x": 0.0,
@@ -17,7 +17,7 @@
         }
     },
     "visualization": {
-        "mesh": "svt.stl",
+        "mesh": "plate_with_camera.stl",
         "show_mesh": true,
         "interactive": false,
         "quantity": 1.0,

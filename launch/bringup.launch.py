@@ -1,6 +1,5 @@
 import os
 import json
-import copy
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import (
@@ -12,17 +11,17 @@ from launch.substitutions import (
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
-
 def generate_launch_description():
-    scenario_dir = FindPackageShare("sp_scenario_1").find("sp_scenario_1")
+    dir = FindPackageShare("sp_scenario_1").find("sp_scenario_1")
+    ur_dir = FindPackageShare("ur_description").find("ur_description")
 
     robot_parameters_path = os.path.join(
-        scenario_dir, "robots", "ursim10e", "general.json"
+        dir, "robots", "ursim3e", "general.json"
     )
 
-    tf_parameters = {
-        "scenario_path": os.path.join(scenario_dir, "scenario"), 
-        # "meshes_path": "/ros/ia_ros_meshes" // add viz
+    parameters = {
+        "scenario_path": os.path.join(dir, "scenario"),
+        "meshes_path": os.path.join(dir, "meshes"),
     }
 
     with open(robot_parameters_path) as jsonfile:
@@ -104,32 +103,28 @@ def generate_launch_description():
 
     joint_limit_params = PathJoinSubstitution(
         [
-            FindPackageShare("ur_setup"),
-            "robots",
+            os.path.join(dir, "robots"),
             robot_parameters["name"],
             "joint_limits.yaml",
         ]
     )
     kinematics_params = PathJoinSubstitution(
         [
-            FindPackageShare("ur_setup"),
-            "robots",
+            os.path.join(dir, "robots"),
             robot_parameters["name"],
             "default_kinematics.yaml",
         ]
     )
     physical_params = PathJoinSubstitution(
         [
-            FindPackageShare("ur_setup"),
-            "robots",
+            os.path.join(dir, "robots"),
             robot_parameters["name"],
             "physical_parameters.yaml",
         ]
     )
     visual_params = PathJoinSubstitution(
         [
-            FindPackageShare("ur_setup"),
-            "robots",
+            os.path.join(dir, "robots"),
             robot_parameters["name"],
             "visual_parameters.yaml",
         ]
@@ -236,20 +231,35 @@ def generate_launch_description():
         ]
     )
 
-    robot_description = {"robot_description": robot_description_content}
     ghost_robot_description = {"robot_description": ghost_robot_description_content}
+    robot_description = {"robot_description": robot_description_content}
 
-    rviz_config_file = os.path.join(scenario_dir, "config", "bringup.rviz")
+    rviz_config_file = os.path.join(dir, "config", "bringup.rviz")
 
-    # rsp and srs should have the same robot params...
-    srs_parameters = {
-        "use_urdf_from_path": False,
-        "urdf_path": "/home/endre/Desktop/meca.urdf", 
+    ghost_robot_parameters = {
+        "urdf_raw": ghost_robot_description_content,
+        "initial_joint_state": ["-1.5707", "-1.5707", "1.5707", "-1.5707", "-1.5707", "0.0"],
+        "initial_base_link_id": "ghost_" + "base_link",
+        "initial_face_plate_id": "ghost_" + "tool0",
+        "initial_tcp_id": "ghost_" + "plate_with_camera"
+    }
+
+    robot_parameters = {
         "urdf_raw": robot_description_content,
         "initial_joint_state": ["0.0", "-1.5707", "1.5707", "-1.5707", "-1.5707", "0.0"],
-        "initial_face_plate_id": "tool0",
-        "initial_tcp_id": "svt_tcp"
+        "initial_base_link_id": "base_link",
+        "initial_face_plate_id":"tool0",
+        "initial_tcp_id":"plate_with_camera"
     }
+
+    ghost_robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        namespace="ghost",
+        output="screen",
+        parameters=[ghost_robot_description],
+        emulate_tty=True,
+    )
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -261,13 +271,51 @@ def generate_launch_description():
         emulate_tty=True,
     )
 
-    ghost_robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        namespace="ghost",
+    teaching_ghost_node = Node(
+        package="teaching_ghost",
+        executable="teaching_ghost",
+        namespace="",
         output="screen",
-        parameters=[ghost_robot_description],
-        # remappings=[("joint_states", "ghost/joint_states"), ("robot_description", "ghost/robot_description")],
+        parameters=[ghost_robot_parameters],
+        emulate_tty=True,
+    )
+
+    teaching_marker_node = Node(
+        package="teaching_marker",
+        executable="teaching_marker",
+        namespace="",
+        output="screen",
+        parameters=[ghost_robot_parameters],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+    )
+
+    tf_lookup_node = Node(
+        package="tf_lookup",
+        executable="tf_lookup",
+        namespace="",
+        output="screen",
+        parameters=[parameters],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+        emulate_tty=True,
+    )
+
+    teaching_tfbc_node = Node(
+        package="teaching_tfbc",
+        executable="broadcaster",
+        namespace="",
+        output="screen",
+        parameters=[parameters],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+        emulate_tty=True,
+    )
+
+    teaching_ui_node = Node(
+        package="teaching_tools_ui",
+        executable="teaching_tools_ui",
+        namespace="",
+        output="screen",
+        parameters=[],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         emulate_tty=True,
     )
 
@@ -276,37 +324,17 @@ def generate_launch_description():
         executable="simple_robot_simulator",
         namespace="",
         output="screen",
-        parameters=[srs_parameters],
+        parameters=[robot_parameters],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         emulate_tty=True,
     )
 
-    tf_lookup_node = Node(
-        package="tf_lookup",
-        executable="tf_lookup",
+    srs_tfbc_node = Node(
+        package="simple_robot_simulator_tfbc",
+        executable="broadcaster",
         namespace="",
         output="screen",
-        parameters=[tf_parameters],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-        emulate_tty=True,
-    )
-
-    tf_broadcast_node = Node(
-        package="tf_broadcast",
-        executable="tf_broadcast",
-        namespace="",
-        output="screen",
-        parameters=[tf_parameters],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-        emulate_tty=True,
-    )
-
-    tf_sms_node = Node(
-        package="tf_sms",
-        executable="tf_sms",
-        namespace="",
-        output="screen",
-        parameters=[tf_parameters],
+        parameters=[parameters],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         emulate_tty=True,
     )
@@ -321,24 +349,28 @@ def generate_launch_description():
         emulate_tty=True,
     )
 
-    pose_saver_marker_node = Node(
-        package="pose_saver_marker",
-        executable="pose_saver_marker",
+    viz_static_node = Node(
+        package="viz_static",
+        executable="viz_static",
         namespace="",
         output="screen",
-        parameters=[],
+        parameters=[parameters],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+        emulate_tty=True,
     )
 
     nodes_to_start = [
+        ghost_robot_state_publisher_node,
+        teaching_ghost_node,
+        teaching_marker_node,
         robot_state_publisher_node,
         simple_robot_simulator_node,
-        ghost_robot_state_publisher_node,
+        teaching_tfbc_node,
+        srs_tfbc_node,
         rviz_node,
         tf_lookup_node,
-        tf_broadcast_node,
-        tf_sms_node,
-        pose_saver_marker_node
+        teaching_ui_node,
+        viz_static_node
     ]
 
     return LaunchDescription(declared_arguments + nodes_to_start)
