@@ -1,24 +1,24 @@
 {
     "show": true,
     "active": false,
-    "child_frame_id": "ghost_plate_with_camera",
-    "parent_frame_id": "ghost_tool0",
+    "child_frame_id": "d435_camera",
+    "parent_frame_id": "plate_with_camera",
     "transform": {
         "translation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.033
+            "x": 0.054,
+            "y": -0.0325,
+            "z": 0.0666
         },
         "rotation": {
             "x": 0.0,
             "y": 0.0,
-            "z": -0.7071,
-            "w": 0.7071
+            "z": 0.0,
+            "w": 1.0
         }
     },
     "visualization": {
-        "mesh": "plate_with_camera.stl",
-        "show_mesh": true,
+        "mesh": "",
+        "show_mesh": false,
         "interactive": false,
         "quantity": 1.0,
         "marker_scale": 0.2,
