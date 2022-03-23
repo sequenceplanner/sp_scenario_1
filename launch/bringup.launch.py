@@ -1,5 +1,6 @@
 import os
 import json
+from tokenize import Double
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import (
@@ -276,12 +277,18 @@ def generate_launch_description():
 
     rviz_config_file = os.path.join(dir, "config", "bringup.rviz")
 
+    teaching_marker_node_parameters = {
+        "initial_base_link_id": "ghost_" + "base_link",
+        "initial_tcp_id": "ghost_" + "robotiq_2f_tcp",
+        "marker_scale": "0.05"
+    }
+
     ghost_robot_parameters = {
         "urdf_raw": ghost_robot_description_content,
         "initial_joint_state": ["-1.5707", "-1.5707", "1.5707", "-1.5707", "-1.5707", "0.0"],
         "initial_base_link_id": "ghost_" + "base_link",
         "initial_face_plate_id": "ghost_" + "tool0",
-        "initial_tcp_id": "ghost_" + "plate_with_camera"
+        "initial_tcp_id": "ghost_" + "robotiq_2f_tcp"
     }
 
     robot_parameters = {
@@ -379,7 +386,7 @@ def generate_launch_description():
         executable="teaching_marker",
         namespace="",
         output="screen",
-        parameters=[ghost_robot_parameters],
+        parameters=[teaching_marker_node_parameters],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
