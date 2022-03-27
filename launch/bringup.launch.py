@@ -390,12 +390,12 @@ def generate_launch_description():
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
-    tf_lookup_node = Node(
-        package="tf_lookup",
-        executable="tf_lookup",
+    sms_node = Node(
+        package="scene_manipulation_service",
+        executable="sms",
         namespace="",
         output="screen",
-        parameters=[parameters],
+        parameters=[],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         emulate_tty=True,
     )
@@ -469,7 +469,7 @@ def generate_launch_description():
         teaching_tfbc_node,
         srs_tfbc_node,
         rviz_node,
-        tf_lookup_node,
+        sms_node,
         teaching_ui_node,
         viz_static_node,
         robotiq_robot_state_publisher_node,
