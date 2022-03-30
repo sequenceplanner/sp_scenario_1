@@ -1,5 +1,33 @@
 repositories:
-  eclipse-cyclonedds/cyclonedds:
+  sequenceplanner/scene_manipulation_service:
     type: git
-    url: https://github.com/eclipse-cyclonedds/cyclonedds.git
-    version: releases/0.8.x
+    url: https://github.com/sequenceplanner/scene_manipulation_service.git
+    version: releases/v0.0.1-alpha
+  sequenceplanner/robotiq_2f:
+    type: git
+    url: https://github.com/sequenceplanner/robotiq_2f.git
+    version: releases/v0.0.1-alpha
+  sequenceplanner/teaching_tools:
+    type: git
+    url: https://github.com/sequenceplanner/teaching_tools.git
+    version: releases/v0.0.1-alpha
+  sequenceplanner/teaching_tools_ui:
+    type: git
+    url: https://github.com/sequenceplanner/teaching_tools_ui.git
+    version: releases/v0.0.1-alpha
+  sequenceplanner/ur_description:
+    type: git
+    url: https://github.com/sequenceplanner/ur_description.git
+    version: releases/v0.0.1-alpha
+  sequenceplanner/viz_tools:
+    type: git
+    url: https://github.com/sequenceplanner/viz_tools.git
+    version: releases/v0.0.1-alpha
+  sequenceplanner/simple_robot_simulator:
+    type: git
+    url: https://github.com/sequenceplanner/simple_robot_simulator.git
+    version: releases/v0.0.1-alpha
+  sp_scenario_1:
+    type: git
+    url: https://github.com/sequenceplanner/sp_scenario_1.git
+    version: releases/v0.0.1-alpha
