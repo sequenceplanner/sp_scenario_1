@@ -27,3 +27,7 @@ repositories:
     type: git
     url: https://github.com/sequenceplanner/simple_robot_simulator.git
     version: releases/v0.0.1-alpha
+  sp_scenario_1:
+    type: git
+    url: https://github.com/sequenceplanner/sp_scenario_1.git
+    version: releases/v0.0.1-alpha
