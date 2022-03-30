@@ -3,6 +3,7 @@ import json
 from tokenize import Double
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.actions import TimerAction
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -371,6 +372,21 @@ def generate_launch_description():
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         emulate_tty=True,
     )
+    
+    # teaching_ghost_node = LaunchDescription([
+    #     TimerAction(
+    #         period=3.0,
+    #         actions=[
+    #             Node(
+    #                 package="teaching_ghost",
+    #                 executable="teaching_ghost",
+    #                 namespace="",
+    #                 output="screen",
+    #                 parameters=[ghost_robot_parameters],
+    #                 remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+    #             )
+    #     ]),
+    # ])
 
     teaching_ghost_node = Node(
         package="teaching_ghost",
@@ -380,6 +396,23 @@ def generate_launch_description():
         parameters=[ghost_robot_parameters],
         emulate_tty=True,
     )
+
+    # teaching_marker_node = LaunchDescription([
+    #     TimerAction(
+    #         period=6.0,
+    #         actions=[
+    #             Node(
+    #                 package="teaching_marker",
+    #                 executable="teaching_marker",
+    #                 namespace="",
+    #                 output="screen",
+    #                 parameters=[teaching_marker_node_parameters],
+    #                 remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+    #             )
+    #     ]),
+    # ])
+    
+
 
     teaching_marker_node = Node(
         package="teaching_marker",
@@ -395,20 +428,21 @@ def generate_launch_description():
         executable="sms",
         namespace="",
         output="screen",
-        parameters=[],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-        emulate_tty=True,
-    )
-
-    teaching_tfbc_node = Node(
-        package="teaching_tfbc",
-        executable="broadcaster",
-        namespace="",
-        output="screen",
         parameters=[parameters],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         emulate_tty=True,
     )
+
+    # this should also be taken care of by sms
+    # teaching_tfbc_node = Node(
+    #     package="teaching_tfbc",
+    #     executable="broadcaster",
+    #     namespace="",
+    #     output="screen",
+    #     parameters=[parameters],
+    #     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+    #     emulate_tty=True,
+    # )
 
     teaching_ui_node = Node(
         package="teaching_tools_ui",
@@ -430,15 +464,16 @@ def generate_launch_description():
         emulate_tty=True,
     )
 
-    srs_tfbc_node = Node(
-        package="simple_robot_simulator_tfbc",
-        executable="broadcaster",
-        namespace="",
-        output="screen",
-        parameters=[parameters],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-        emulate_tty=True,
-    )
+    # this should also be taken care of by sms
+    # srs_tfbc_node = Node(
+    #     package="simple_robot_simulator_tfbc",
+    #     executable="broadcaster",
+    #     namespace="",
+    #     output="screen",
+    #     parameters=[parameters],
+    #     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+    #     emulate_tty=True,
+    # )
 
     rviz_node = Node(
         package="rviz2",
@@ -466,8 +501,8 @@ def generate_launch_description():
         teaching_marker_node,
         robot_state_publisher_node,
         simple_robot_simulator_node,
-        teaching_tfbc_node,
-        srs_tfbc_node,
+        # teaching_tfbc_node,
+        # srs_tfbc_node,
         rviz_node,
         sms_node,
         teaching_ui_node,

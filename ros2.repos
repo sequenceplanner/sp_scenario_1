@@ -1,0 +1,29 @@
+repositories:
+  scene_manipulation_service:
+    type: git
+    url: https://github.com/sequenceplanner/scene_manipulation_service.git
+    version: releases/v0.0.1-alpha
+  robotiq_2f:
+    type: git
+    url: https://github.com/sequenceplanner/robotiq_2f.git
+    version: releases/v0.0.1-alpha
+  teaching_tools:
+    type: git
+    url: https://github.com/sequenceplanner/teaching_tools.git
+    version: releases/v0.0.1-alpha
+  teaching_tools_ui:
+    type: git
+    url: https://github.com/sequenceplanner/teaching_tools_ui.git
+    version: releases/v0.0.1-alpha
+  ur_description:
+    type: git
+    url: https://github.com/sequenceplanner/ur_description.git
+    version: releases/v0.0.1-alpha
+  viz_tools:
+    type: git
+    url: https://github.com/sequenceplanner/viz_tools.git
+    version: releases/v0.0.1-alpha
+  simple_robot_simulator:
+    type: git
+    url: https://github.com/sequenceplanner/simple_robot_simulator.git
+    version: releases/v0.0.1-alpha
